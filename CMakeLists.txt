@@ -18,16 +18,22 @@ set(IMGUI_SOURCES
     imgui/backends/imgui_impl_opengl3.cpp
 )
 
-# ==== 実行ファイル ====
-add_executable(MemoApp
-    src/main.cpp
-    ${IMGUI_SOURCES}
+# --- 自動でsrc以下のcppを全て取得（main.cpp含む）---
+file(GLOB_RECURSE SRC_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
 
-# ==== インクルードパス ====
-target_include_directories(MemoApp PRIVATE
-    imgui
-    imgui/backends
+# --- includeディレクトリを登録 ---
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui
+    ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends
+)
+
+# ==== 実行ファイル ====
+add_executable(MemoApp
+    ${SRC_FILES}
+    ${IMGUI_SOURCES}
 )
 
 # ==== リンク設定 ====
@@ -35,6 +41,13 @@ target_link_libraries(MemoApp PRIVATE
     glfw
     OpenGL::GL
 )
+
+target_link_libraries(MemoApp PUBLIC imm32.lib)
+
+if(WIN32)
+    # Link Windows IME library for Imm* functions used in ImeHelper
+    target_link_libraries(MemoApp PRIVATE imm32)
+endif()
 
 # ==== Windowsのコンソールを隠したい場合（任意） ====
 if(WIN32)
