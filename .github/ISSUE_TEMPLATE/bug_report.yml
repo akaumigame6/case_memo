@@ -10,7 +10,7 @@ body:
         ## 🐛 バグ報告
         再現性の高いバグ報告は開発を加速させます。できるだけ詳細に記載してください。
 
-  - type: input
+  - type: textarea
     id: summary
     attributes:
       label: 概要
@@ -18,6 +18,18 @@ body:
       placeholder: 例）ゲーム起動時にクラッシュする
     validations:
       required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 環境情報
+      description: 該当するものを記載してください。
+      placeholder: |
+        - OS: Windows 11 / macOS 13  
+        - Unity: 2022.3 LTS  
+        - ビルドターゲット: WebGL / PC / Switch  
+    validations:
+      required: false
 
   - type: textarea
     id: steps
@@ -46,18 +58,6 @@ body:
       placeholder: 実際にどのような挙動・エラーが起きたのか
     validations:
       required: true
-
-  - type: textarea
-    id: environment
-    attributes:
-      label: 環境情報
-      description: 該当するものを記載してください。
-      placeholder: |
-        - OS: Windows 11 / macOS 13  
-        - Unity: 2022.3 LTS  
-        - ビルドターゲット: WebGL / PC / Switch  
-    validations:
-      required: false
 
   - type: textarea
     id: logs
