@@ -1,0 +1,14 @@
+{
+  "name": "開発メモ",
+  "fields": [
+    { "label": "タイトル", "type": "text" },
+    { "label": "日付", "type": "text" },
+    { "label": "やりたいこと", "type": "multiline" },
+    { "label": "やったこと", "type": "multiline" },
+    { "label": "コード・設定メモ", "type": "multiline" },
+    { "label": "詰まった点", "type": "multiline" },
+    { "label": "動作確認", "type": "multiline" },
+    { "label": "TODO / 次回やること", "type": "multiline" },
+    { "label": "参考サイト", "type": "multiline" }
+  ]
+}
