@@ -1,0 +1,45 @@
+name: "Feature Request"
+description: "機能追加・改善案用テンプレート"
+title: "[Feature]: "
+labels: ["enhancement"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ✨ 機能要望
+        追加したい機能や改善したい点について記載してください。
+
+  - type: input
+    id: summary
+    attributes:
+      label: 概要
+      placeholder: 提案内容を一言で
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 詳細
+      placeholder: |
+        どのような機能なのか、なぜ必要なのか、誰に影響するのかを書いてください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternative
+    attributes:
+      label: 代替案
+      placeholder: 他に考えられる案があれば記載してください
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 備考
+      placeholder: 補足情報があれば
+    validations:
+      required: false
