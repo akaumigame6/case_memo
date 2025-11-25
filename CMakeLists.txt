@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ==== 必要ライブラリ ====
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 # ==== Dear ImGui のソース ====
 set(IMGUI_SOURCES
@@ -25,7 +26,10 @@ file(GLOB_RECURSE SRC_FILES
 
 # --- includeディレクトリを登録 ---
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/model
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends
 )
@@ -43,6 +47,8 @@ target_link_libraries(MemoApp PRIVATE
 )
 
 target_link_libraries(MemoApp PUBLIC imm32.lib)
+
+target_link_libraries(MemoApp PRIVATE nlohmann_json::nlohmann_json)
 
 if(WIN32)
     # Link Windows IME library for Imm* functions used in ImeHelper
