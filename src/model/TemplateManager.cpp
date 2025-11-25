@@ -10,6 +10,11 @@ namespace fs = std::filesystem;
 
 namespace model {
 
+/**
+ * @brief Construct a TemplateManager for managing JSON templates in a directory.
+ *
+ * @param dir Filesystem path to the directory that contains template JSON files.
+ */
 TemplateManager::TemplateManager(const string& dir)
     : directory(dir)
 {
@@ -35,6 +40,13 @@ const vector<string>& TemplateManager::GetTemplateNames() const
     return templateNames;
 }
 
+/**
+ * @brief Load a template by name from the manager's directory and parse its JSON representation.
+ *
+ * If the file cannot be opened or the JSON cannot be parsed, an empty TemplateData is returned and an error is logged.
+ *
+ * @return TemplateData The parsed template (fields and optional name). Returns an empty TemplateData on error or if the file is missing/invalid.
+ */
 TemplateData TemplateManager::LoadTemplate(const std::string& name) const
 {
     TemplateData data;
