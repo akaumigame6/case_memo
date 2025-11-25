@@ -5,13 +5,14 @@
 #include <iostream>
 
 using namespace std;
-
 namespace fs = filesystem;
+
+namespace model {
 
 // --- JSONを安全に読み込む ---
 static string LoadFileUTF8(const string& path)
 {
-    ifstream ifs(path, ios::binary); // ロケール依存を避ける
+    ifstream ifs(path, ios::binary);
     if (!ifs.is_open()) {
         cerr << "Failed to open: " << path << endl;
         return "";
@@ -19,7 +20,7 @@ static string LoadFileUTF8(const string& path)
 
     ostringstream ss;
     ss << ifs.rdbuf();
-    return ss.str(); // UTF-8文字列として扱う
+    return ss.str();
 }
 
 // --- 簡易パーサー（UTF-8対応） ---
@@ -34,7 +35,6 @@ static string ExtractString(const string& src, const string& key)
     size_t q1 = src.find('"', pos + 1);
     size_t q2 = src.find('"', q1 + 1);
     if (q1 == string::npos || q2 == string::npos) return "";
-    // バイト単位の切り出しだが、UTF-8では問題ない（ImGuiはUTF-8前提）
     return src.substr(q1 + 1, q2 - q1 - 1);
 }
 
@@ -72,7 +72,6 @@ TemplateData TemplateManager::LoadTemplate(const std::string& name) const
 
     data.name = ExtractString(json, "name");
 
-    // "label" と "type" を順に抽出
     size_t pos = 0;
     while ((pos = json.find("\"label\"", pos)) != string::npos)
     {
@@ -85,3 +84,5 @@ TemplateData TemplateManager::LoadTemplate(const std::string& name) const
 
     return data;
 }
+
+} // namespace model
