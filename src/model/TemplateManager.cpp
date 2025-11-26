@@ -3,41 +3,19 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <filesystem>
+#include <nlohmann/json.hpp>
+
+using namespace std;
+namespace fs = std::filesystem;
 
 namespace model {
 
-// --- JSONを安全に読み込む ---
-static std::string LoadFileUTF8(const std::string& path)
-{
-
-    std::ifstream ifs(path, std::ios::binary);
-    if (!ifs.is_open()) {
-        std::cerr << "Failed to open: " << path << std::endl;
-        return "";
-    }
-
-    std::ostringstream ss;
-    ss << ifs.rdbuf();
-    return ss.str();
-}
-
-// --- 簡易パーサー（UTF-8対応） ---
-static std::string ExtractString(const std::string& src, const std::string& key)
-{
-    size_t pos = src.find("\"" + key + "\"");
-    if (pos == std::string::npos) return "";
-
-    pos = src.find(':', pos);
-    if (pos == std::string::npos) return "";
-
-    size_t q1 = src.find('"', pos + 1);
-    size_t q2 = src.find('"', q1 + 1);
-    if (q1 == std::string::npos || q2 == std::string::npos) return "";
-    return src.substr(q1 + 1, q2 - q1 - 1);
-}
-
-TemplateManager::TemplateManager(const std::string& dir)
+/**
+ * @brief Construct a TemplateManager for managing JSON templates in a directory.
+ *
+ * @param dir Filesystem path to the directory that contains template JSON files.
+ */
+TemplateManager::TemplateManager(const string& dir)
     : directory(dir)
 {
 }
@@ -62,23 +40,50 @@ const std::vector<std::string>& TemplateManager::GetTemplateNames() const
     return templateNames;
 }
 
+/**
+ * @brief Load a template by name from the manager's directory and parse its JSON representation.
+ *
+ * If the file cannot be opened or the JSON cannot be parsed, an empty TemplateData is returned and an error is logged.
+ *
+ * @return TemplateData The parsed template (fields and optional name). Returns an empty TemplateData on error or if the file is missing/invalid.
+ */
 TemplateData TemplateManager::LoadTemplate(const std::string& name) const
 {
     TemplateData data;
-    std::string path = directory + "/" + name + ".json";
-    std::string json = LoadFileUTF8(path);
-    if (json.empty()) return data;
+    string path = directory + "/" + name + ".json";
+    std::ifstream ifs(path);
+    if (!ifs.is_open()) {
+        cerr << "Failed to open template file: " << path << std::endl;
+        return data;
+    }
 
-    data.name = ExtractString(json, "name");
+    try {
+        nlohmann::json j;
+        ifs >> j;
 
-    size_t pos = 0;
-    while ((pos = json.find("\"label\"", pos)) != std::string::npos)
-    {
-        TemplateField field;
-        field.label = ExtractString(json.substr(pos), "label");
-        field.type = ExtractString(json.substr(pos), "type");
-        data.fields.push_back(field);
-        pos += 10;
+        if (j.contains("name") && j["name"].is_string())
+            data.name = j["name"].get<string>();
+
+        // fields は配列であることを期待
+        if (j.contains("fields") && j["fields"].is_array()) {
+            for (const auto& item : j["fields"]) {
+                if (!item.is_object()) continue;
+                TemplateField field;
+                field.label = item.value("label", std::string());
+                field.type = item.value("type", std::string());
+                field.value = item.value("value", std::string());
+                data.fields.push_back(std::move(field));
+            }
+        }
+        else {
+            // 古いフォーマット互換： top-level に label/type が複数ある場合の簡易処理は省略
+        }
+    }
+    catch (const nlohmann::json::parse_error& e) {
+        cerr << "JSON parse error in " << path << ": " << e.what() << std::endl;
+    }
+    catch (const std::exception& e) {
+        cerr << "Error reading template " << path << ": " << e.what() << std::endl;
     }
 
     return data;
