@@ -3,42 +3,41 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-
-using namespace std;
-namespace fs = filesystem;
+#include <filesystem>
 
 namespace model {
 
 // --- JSONを安全に読み込む ---
-static string LoadFileUTF8(const string& path)
+static std::string LoadFileUTF8(const std::string& path)
 {
-    ifstream ifs(path, ios::binary);
+
+    std::ifstream ifs(path, std::ios::binary);
     if (!ifs.is_open()) {
-        cerr << "Failed to open: " << path << endl;
+        std::cerr << "Failed to open: " << path << std::endl;
         return "";
     }
 
-    ostringstream ss;
+    std::ostringstream ss;
     ss << ifs.rdbuf();
     return ss.str();
 }
 
 // --- 簡易パーサー（UTF-8対応） ---
-static string ExtractString(const string& src, const string& key)
+static std::string ExtractString(const std::string& src, const std::string& key)
 {
     size_t pos = src.find("\"" + key + "\"");
-    if (pos == string::npos) return "";
+    if (pos == std::string::npos) return "";
 
     pos = src.find(':', pos);
-    if (pos == string::npos) return "";
+    if (pos == std::string::npos) return "";
 
     size_t q1 = src.find('"', pos + 1);
     size_t q2 = src.find('"', q1 + 1);
-    if (q1 == string::npos || q2 == string::npos) return "";
+    if (q1 == std::string::npos || q2 == std::string::npos) return "";
     return src.substr(q1 + 1, q2 - q1 - 1);
 }
 
-TemplateManager::TemplateManager(const string& dir)
+TemplateManager::TemplateManager(const std::string& dir)
     : directory(dir)
 {
 }
@@ -47,18 +46,18 @@ void TemplateManager::LoadTemplates()
 {
     templateNames.clear();
     try {
-        for (auto& e : fs::directory_iterator(directory)) {
+        for (auto& e : std::filesystem::directory_iterator(directory)) {
             if (e.path().extension() == ".json") {
                 templateNames.push_back(e.path().stem().string());
             }
         }
     }
-    catch (exception& e) {
-        cerr << "Template load error: " << e.what() << std::endl;
+    catch (std::exception& e) {
+        std::cerr << "Template load error: " << e.what() << std::endl;
     }
 }
 
-const vector<string>& TemplateManager::GetTemplateNames() const
+const std::vector<std::string>& TemplateManager::GetTemplateNames() const
 {
     return templateNames;
 }
@@ -66,14 +65,14 @@ const vector<string>& TemplateManager::GetTemplateNames() const
 TemplateData TemplateManager::LoadTemplate(const std::string& name) const
 {
     TemplateData data;
-    string path = directory + "/" + name + ".json";
-    string json = LoadFileUTF8(path);
+    std::string path = directory + "/" + name + ".json";
+    std::string json = LoadFileUTF8(path);
     if (json.empty()) return data;
 
     data.name = ExtractString(json, "name");
 
     size_t pos = 0;
-    while ((pos = json.find("\"label\"", pos)) != string::npos)
+    while ((pos = json.find("\"label\"", pos)) != std::string::npos)
     {
         TemplateField field;
         field.label = ExtractString(json.substr(pos), "label");
