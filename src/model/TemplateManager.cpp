@@ -5,9 +5,6 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-using namespace std;
-namespace fs = std::filesystem;
-
 namespace model {
 
 /**
@@ -15,7 +12,7 @@ namespace model {
  *
  * @param dir Filesystem path to the directory that contains template JSON files.
  */
-TemplateManager::TemplateManager(const string& dir)
+TemplateManager::TemplateManager(const std::string& dir)
     : directory(dir)
 {
 }
@@ -50,10 +47,10 @@ const std::vector<std::string>& TemplateManager::GetTemplateNames() const
 TemplateData TemplateManager::LoadTemplate(const std::string& name) const
 {
     TemplateData data;
-    string path = directory + "/" + name + ".json";
+    std::string path = directory + "/" + name + ".json";
     std::ifstream ifs(path);
     if (!ifs.is_open()) {
-        cerr << "Failed to open template file: " << path << std::endl;
+        std::cerr << "Failed to open template file: " << path << std::endl;
         return data;
     }
 
@@ -62,7 +59,7 @@ TemplateData TemplateManager::LoadTemplate(const std::string& name) const
         ifs >> j;
 
         if (j.contains("name") && j["name"].is_string())
-            data.name = j["name"].get<string>();
+            data.name = j["name"].get<std::string>();
 
         // fields は配列であることを期待
         if (j.contains("fields") && j["fields"].is_array()) {
@@ -80,10 +77,10 @@ TemplateData TemplateManager::LoadTemplate(const std::string& name) const
         }
     }
     catch (const nlohmann::json::parse_error& e) {
-        cerr << "JSON parse error in " << path << ": " << e.what() << std::endl;
+        std::cerr << "JSON parse error in " << path << ": " << e.what() << std::endl;
     }
     catch (const std::exception& e) {
-        cerr << "Error reading template " << path << ": " << e.what() << std::endl;
+        std::cerr << "Error reading template " << path << ": " << e.what() << std::endl;
     }
 
     return data;
